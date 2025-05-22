@@ -7,6 +7,22 @@ const UserDetailsSection: React.FC = () => {
   const [name, setName] = useState('Saziya parveen');
   const [phoneNumber, setPhoneNumber] = useState('');
 
+  // Allow only letters and spaces in name
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (/^[a-zA-Z\s]*$/.test(value)) {
+      setName(value);
+    }
+  };
+
+  // Allow only digits in phone number
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (/^\d*$/.test(value)) {
+      setPhoneNumber(value);
+    }
+  };
+
   return (
     <div className="border-b border-gray-200">
       <FormHeader title="REVIEW YOUR DETAILS" />
@@ -24,7 +40,7 @@ const UserDetailsSection: React.FC = () => {
             <label className="block mb-2 text-sm font-medium text-gray-900">Name</label>
             <FormInput
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={handleNameChange}
               maxLength={30}
               currentLength={name.length}
             />
@@ -34,7 +50,7 @@ const UserDetailsSection: React.FC = () => {
         <div className="mb-5">
           <h3 className="text-lg font-medium mb-2">Let's verify your account</h3>
           <p className="text-sm text-gray-600 mb-4">
-            We will send you a confirmation code by sms on the next step.
+            We will send you a confirmation code by SMS on the next step.
           </p>
 
           <div className="max-w-sm">
@@ -43,8 +59,9 @@ const UserDetailsSection: React.FC = () => {
             </label>
             <FormInput
               value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
+              onChange={handlePhoneChange}
               prefix="+91"
+              inputMode="numeric" // Hint for mobile to show number pad
             />
           </div>
         </div>

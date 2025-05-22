@@ -87,11 +87,64 @@ const DetailsSection: React.FC = () => {
   const [adTitle, setAdTitle] = useState('');
   const [description, setDescription] = useState('');
 
+  // Errors state
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Helper for digit-only input
+  const handleDigitInput = (setter: React.Dispatch<React.SetStateAction<string>>) => (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (/^\d*$/.test(e.target.value)) {
+      setter(e.target.value);
+    }
+  };
+
+  // Validate fields
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+
+    // Required
+    if (!propertyType) newErrors.propertyType = 'Property Type is required.';
+    if (!builtUpArea) newErrors.builtUpArea = 'Super BuiltUp area is required.';
+    if (!carpetArea) newErrors.carpetArea = 'Carpet Area is required.';
+    if (!adTitle.trim()) newErrors.adTitle = 'Ad Title is required.';
+    if (!description.trim()) newErrors.description = 'Description is required.';
+
+    // Numeric validations (only digits allowed and > 0)
+    if (builtUpArea && (!/^\d+$/.test(builtUpArea) || Number(builtUpArea) === 0)) {
+      newErrors.builtUpArea = 'Enter a valid area in digits greater than 0.';
+    }
+    if (carpetArea && (!/^\d+$/.test(carpetArea) || Number(carpetArea) === 0)) {
+      newErrors.carpetArea = 'Enter a valid area in digits greater than 0.';
+    }
+    if (maintenance && !/^\d+$/.test(maintenance)) {
+      newErrors.maintenance = 'Maintenance must be digits only.';
+    }
+    if (totalFloors && !/^\d+$/.test(totalFloors)) {
+      newErrors.totalFloors = 'Total Floors must be digits only.';
+    }
+    if (floorNo && !/^\d+$/.test(floorNo)) {
+      newErrors.floorNo = 'Floor No must be digits only.';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Example submit handler (you removed submit button)
+  // const handleSubmit = () => {
+  //   if (validate()) {
+  //     alert('Form is valid! Submitting...');
+  //   } else {
+  //     alert('Please fix validation errors first.');
+  //   }
+  // };
+
   return (
     <div className="border-b border-gray-200">
       <FormHeader title="INCLUDE SOME DETAILS" />
       <div className="p-5 space-y-6">
-        <FormField label="Type" required>
+        <FormField label="Type" required error={errors.propertyType}>
           <div className="space-y-2">
             <OptionSelector
               options={propertyTypes}
@@ -107,78 +160,66 @@ const DetailsSection: React.FC = () => {
         </FormField>
 
         <FormField label="BHK">
-          <OptionSelector
-            options={bhkOptions}
-            selected={bhk}
-            onChange={setBhk}
-          />
+          <OptionSelector options={bhkOptions} selected={bhk} onChange={setBhk} />
         </FormField>
 
         <FormField label="Bathrooms">
-          <OptionSelector
-            options={bathroomOptions}
-            selected={bathrooms}
-            onChange={setBathrooms}
-          />
+          <OptionSelector options={bathroomOptions} selected={bathrooms} onChange={setBathrooms} />
         </FormField>
 
         <FormField label="Furnishing">
-          <OptionSelector
-            options={furnishingOptions}
-            selected={furnishing}
-            onChange={setFurnishing}
-          />
+          <OptionSelector options={furnishingOptions} selected={furnishing} onChange={setFurnishing} />
         </FormField>
 
         <FormField label="Project Status">
-          <OptionSelector
-            options={projectStatusOptions}
-            selected={projectStatus}
-            onChange={setProjectStatus}
-          />
+          <OptionSelector options={projectStatusOptions} selected={projectStatus} onChange={setProjectStatus} />
         </FormField>
 
         <FormField label="Listed by">
-          <OptionSelector
-            options={listedByOptions}
-            selected={listedBy}
-            onChange={setListedBy}
-          />
+          <OptionSelector options={listedByOptions} selected={listedBy} onChange={setListedBy} />
         </FormField>
 
-        <div className="space-y-4 max-w-sm">
-          <FormField label="Super BuiltUp area sqft" required>
+        <div className="space-y-4 max-w-xs">
+          <FormField label="Super BuiltUp area sqft" required error={errors.builtUpArea}>
             <FormInput
               value={builtUpArea}
-              onChange={(e) => setBuiltUpArea(e.target.value)}
+              onChange={handleDigitInput(setBuiltUpArea)}
             />
           </FormField>
 
-          <FormField label="Carpet Area sqft" required>
+          <FormField label="Carpet Area sqft" required error={errors.carpetArea}>
             <FormInput
               value={carpetArea}
-              onChange={(e) => setCarpetArea(e.target.value)}
+              onChange={handleDigitInput(setCarpetArea)}
             />
           </FormField>
 
-          <FormField label="Maintenance (Monthly)">
+          <FormField label="Maintenance (Monthly)" error={errors.maintenance}>
             <FormInput
               value={maintenance}
-              onChange={(e) => setMaintenance(e.target.value)}
+              onChange={handleDigitInput(setMaintenance)}
             />
           </FormField>
 
-          <FormField label="Total Floors">
+          <FormField label="Total Floors" error={errors.totalFloors}>
             <FormInput
               value={totalFloors}
-              onChange={(e) => setTotalFloors(e.target.value)}
+              onChange={handleDigitInput(setTotalFloors)}
             />
           </FormField>
 
-          <FormField label="Floor No">
+          <FormField label="Floor No" error={errors.floorNo}>
             <FormInput
               value={floorNo}
-              onChange={(e) => setFloorNo(e.target.value)}
+              onChange={handleDigitInput(setFloorNo)}
+            />
+          </FormField>
+
+          <FormField label="Car Parking">
+            <OptionSelector
+              options={parkingOptions}
+              selected={parking}
+              onChange={setParking}
             />
           </FormField>
 
@@ -199,31 +240,25 @@ const DetailsSection: React.FC = () => {
             />
           </FormField>
 
-          <FormField label="Ad title" required>
+          <FormField label="Ad title" required error={errors.adTitle}>
             <FormInput
               value={adTitle}
               onChange={(e) => setAdTitle(e.target.value)}
               maxLength={70}
               currentLength={adTitle.length}
               hint="Mention the key features of your item (e.g. brand, model, age, type)"
+              hintClassName="whitespace-nowrap"  // This forces hint text in one line
+              className="w-full max-w-md"         // Slightly wider input box
             />
           </FormField>
 
-          <FormField label="Description" required>
+          <FormField label="Description" required error={errors.description}>
             <FormTextarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               maxLength={4096}
               currentLength={description.length}
               hint="Include condition, features and reason for selling"
-            />
-          </FormField>
-
-          <FormField label="Car Parking">
-            <OptionSelector
-              options={parkingOptions}
-              selected={parking}
-              onChange={setParking}
             />
           </FormField>
         </div>

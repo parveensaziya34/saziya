@@ -6,6 +6,15 @@ import FormInput from './selectors/FormInput';
 const PriceSection: React.FC = () => {
   const [price, setPrice] = useState('');
 
+  // Only allow numeric input
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Allow only digits (empty string is also allowed to clear the input)
+    if (/^\d*$/.test(value)) {
+      setPrice(value);
+    }
+  };
+
   return (
     <div className="border-b border-gray-200">
       <FormHeader title="SET A PRICE" />
@@ -14,8 +23,9 @@ const PriceSection: React.FC = () => {
           <FormField label="Price" required>
             <FormInput
               value={price}
-              onChange={(e) => setPrice(e.target.value)}
+              onChange={handlePriceChange}
               prefix="₹"
+              inputMode="numeric" // for mobile keyboards
             />
           </FormField>
         </div>
